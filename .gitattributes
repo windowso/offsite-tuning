@@ -1,0 +1,4 @@
+*.bin filter=lfs diff=lfs merge=lfs -text
+emulators/** filter=lfs diff=lfs merge=lfs -text
+models/** filter=lfs diff=lfs merge=lfs -text
+* text=auto
