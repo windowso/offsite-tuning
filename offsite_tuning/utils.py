@@ -597,8 +597,9 @@ def setup_teacher_student(model, args, accelerator):
 
     layers = get_layers(model)
 
-    # left remove l layers, right remove r layers
+    # left l layers are adapters, right r layers are adapters
     l, r = args.student_l_pad, len(layers) - args.student_r_pad
+    # TODO:it seems that student get from knowledge distillation, but the author don't tell how to get the student,which knowledge distillation method is used?
     if args.load_student:
         student_state_dict = torch.load(os.path.join(
             args.load_student, 'student.pt'), map_location='cpu')
