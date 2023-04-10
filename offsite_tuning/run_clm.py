@@ -95,7 +95,6 @@ def main():
     # If we're using tracking, we also need to initialize it here and it will by default pick up all supported trackers
     # in the environment
 
-    #TODO:should i master accelerator and logger?can i use this code no fix?
     accelerator_log_kwargs = {}
 
     accelerator_log_kwargs["log_with"] = args.report_to
@@ -168,8 +167,7 @@ def main():
         logger.info("Training new model from scratch")
         model = AutoModelForCausalLM.from_config(config)
 
-    # We resize the embeddings only when necessary to avoid index errors. If you are creating a model from scratch
-    # on a small vocab and want a smaller embedding size, remove this test.
+    # We resize the embeddings only when necessary to avoid index errors. If you are creating a model from scratch on a small vocab and want a smaller embedding size, remove this test.
     embedding_size = model.get_input_embeddings().weight.shape[0]
     #TODO:i guess the len of tokenizer is the number of words which the model can recognize
     if len(tokenizer) > embedding_size:
@@ -213,7 +211,7 @@ def main():
         eval_dataset = eval_dataset.select(
             range(args.validation_num_samples))
 
-    collator = default_data_collator
+    collator = default_data_collator # form a batch
     train_dataloader = DataLoader(
         train_dataset, shuffle=True, collate_fn=collator, batch_size=args.per_device_train_batch_size
     )
@@ -398,6 +396,7 @@ def main():
             with accelerator.accumulate(model):
                 outputs = model(**batch)
                 lm_loss = outputs.loss
+                # TODO:distill the teacher, but what data to use?
                 if not args.no_teacher:
                     kd_loss = get_kd_loss(model.module)
                 else:

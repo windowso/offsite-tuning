@@ -47,7 +47,6 @@ class MLP(nn.Module):
         x = self.layers[-1](x)
         return x
 
-#TODO:try to undrestand the two functions below
 def add_prologue(module, prologue):
     module.old_forward = module.forward
     module.prologue = prologue
@@ -599,7 +598,6 @@ def setup_teacher_student(model, args, accelerator):
 
     # left l layers are adapters, right r layers are adapters
     l, r = args.student_l_pad, len(layers) - args.student_r_pad
-    # TODO:it seems that student get from knowledge distillation, but the author don't tell how to get the student,which knowledge distillation method is used?
     if args.load_student:
         student_state_dict = torch.load(os.path.join(
             args.load_student, 'student.pt'), map_location='cpu')
@@ -665,7 +663,7 @@ def setup_teacher_student(model, args, accelerator):
     for param in model.teacher.parameters():
         param.requires_grad = False
 
-    add_prologue(model.student[0], None)
+    add_prologue(model.student[0], None) # no change
     add_epilogue(model.student[-1], None)
     model.student_l = model.student[0]
     model.student_r = model.student[-1]

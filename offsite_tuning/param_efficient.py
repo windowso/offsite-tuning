@@ -8,9 +8,6 @@ from transformers.models.opt.modeling_opt import OPTDecoderLayer
 from transformers.models.gpt2.modeling_gpt2 import GPT2Block
 from transformers.pytorch_utils import Conv1D
 
-
-#TODO: this part could be replaced by using loralib or opendelta?  maybe this part is not important,i don't need to modify it. I think soft prompt won't use lora.
-
 class LoRALayer():
     def __init__(
         self,

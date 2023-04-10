@@ -162,11 +162,10 @@ def process_text2text_datasets(raw_datasets, args, tokenizer, accelerator):
         context = tokenizer(context) # {'input_ids': [[], [], ...], 'attention_mask': [[], [], ...]}
         target = tokenizer(target)
 
-        #TODO:why should we remove the special tokens?because we should concat the context and target?so we should remove the eos of context and bos of target?
         # for clm, the attention mask should be 1 for all tokens
         # for mlm, the attention mask should be 1 for all tokens except the special tokens
 
-        # if context is ending with special token, remove it
+        # if context is ending with special token, remove it(because we should concat the context and target)
         if len(context['input_ids'][0]) > 0 and context['input_ids'][0][-1] in tokenizer.all_special_ids:
             context['input_ids'] = [i[:-1] for i in context['input_ids']]
             context['attention_mask'] = [a[:-1]
@@ -186,12 +185,12 @@ def process_text2text_datasets(raw_datasets, args, tokenizer, accelerator):
                                  a2 in zip(context['attention_mask'], target['attention_mask'])]
 
         # set -100 for context tokens
-        #TODO: why -100? for list, * means repeat. what is the impact of labels?
+        # torch的交叉熵函数默认设置为-100的部分不计算损失函数
         out["labels"] = [
             [-100] * len(i1) + i2 for i1, i2 in zip(context['input_ids'], target['input_ids'])]
 
         return out
-    #TODO:i know accelerator is to process multi-gpu training, but i don't know why we should use accelerator.main_process_first() here
+
     with accelerator.main_process_first():
         tokenized_datasets = raw_datasets.map(
             tokenize_function,
@@ -204,7 +203,6 @@ def process_text2text_datasets(raw_datasets, args, tokenizer, accelerator):
 
     # bos is beginning of sentence,eos is end of sentence
     # according to my experiments, tokenizer.pad_token_id is 50256, tokenizer.bos_token_id is 50256, tokenizer.eos_token_id is 50256,which means gpt2 has no special padding token, tokenizer.pad_token = tokenizer.bos_token = tokenizer.eos_token
-    #TODO: why should we set tokenizer.pad_token = tokenizer.bos_token?what is the meaning of this code?
 
     if "gpt2" in args.model_name_or_path:
         tokenizer.pad_token = tokenizer.bos_token
